@@ -12,12 +12,27 @@ enum ColorDestination {
 }
 
 class SmoothTheme {
+  @visibleForTesting
+  const SmoothTheme();
+
+  /// The singleton for the theme.
+  static SmoothTheme get instance => _instance ??= const SmoothTheme();
+  static SmoothTheme? _instance;
+
+  /// Setter that allows tests to override the singleton instance.
+  @visibleForTesting
+  static set instance(SmoothTheme testInstance) => _instance = testInstance;
+
   static const double ADDITIONAL_OPACITY_FOR_DARK = .3;
 
   /// Theme color tags
   static const String COLOR_TAG_BLUE = 'blue';
   static const String COLOR_TAG_GREEN = 'green';
   static const String COLOR_TAG_BROWN = 'brown';
+
+  /// Product page color
+  static const Color COLOR_PRODUCT_PAGE_BACKGROUND =
+      Color.fromARGB(255, 234, 244, 234);
 
   /// Theme material colors
   static const Map<String, MaterialColor> MATERIAL_COLORS =
@@ -27,6 +42,18 @@ class SmoothTheme {
     COLOR_TAG_BROWN: Colors.brown,
   };
 
+  static Color? getColor(
+    final ColorScheme colorScheme,
+    final MaterialColor materialColor,
+    final ColorDestination colorDestination,
+  ) =>
+      instance.getColorImpl(colorScheme, materialColor, colorDestination);
+
+  static MaterialColor getMaterialColor(
+    final ThemeProvider themeProvider,
+  ) =>
+      instance.getMaterialColorImpl(themeProvider);
+
   /// Returns a shade of a [materialColor]
   ///
   /// For instance, if you want to display a red button,
@@ -34,7 +61,8 @@ class SmoothTheme {
   /// the destination will be ColorDestination.BUTTON_BACKGROUND,
   /// and you'll specify the current ColorScheme.
   /// For the moment, the ColorScheme matters only for the light/dark switch.
-  static Color? getColor(
+  @protected
+  Color? getColorImpl(
     final ColorScheme colorScheme,
     final MaterialColor materialColor,
     final ColorDestination colorDestination,
@@ -64,7 +92,8 @@ class SmoothTheme {
     }
   }
 
-  static MaterialColor getMaterialColor(final ThemeProvider themeProvider) {
+  @protected
+  MaterialColor getMaterialColorImpl(final ThemeProvider themeProvider) {
     if (themeProvider.darkTheme) {
       return Colors.grey;
     }
